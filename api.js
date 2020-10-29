@@ -1,5 +1,12 @@
 'use strict';
 
+
+const uuid = require('uuid');
+const AWS = require('aws-sdk'); 
+
+//const dynamoDb = new AWS.DynamoDB.DocumentClient();
+//tableName =  process.env.WAYPOINT_TABLE;
+
 module.exports.getMap = async event => {
   return {
     statusCode: 200,
@@ -36,6 +43,9 @@ module.exports.getGeofence = async event => {
 };
 
 module.exports.getTrackerDevices = async event => {
+  
+  
+
   return {
     statusCode: 200,
     body: JSON.stringify(
@@ -51,3 +61,4 @@ module.exports.getTrackerDevices = async event => {
   // Use this code if you don't use the http event with the LAMBDA-PROXY integration
   // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
 };
+

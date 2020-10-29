@@ -9,29 +9,17 @@ provider:
   runtime: nodejs12.x
   stage: dev
   region: eu-west-1
+  environment:
+    WAYPOINT_TABLE: ${self:service}-${opt:stage, self:provider.stage}
 
-# you can overwrite defaults here
-
-
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: "*"
 
 # you can add packaging information here
 #package:
@@ -44,6 +32,36 @@ provider:
 
 resources:
  Resources:
+
+    InjestionQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "InjestionQueue"
+
+    WaypointDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      # DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: "Tracker"
+            AttributeType: "S" 
+          -
+            AttributeName: "DeviceId"
+            AttributeType: "S" 
+        KeySchema:
+          -
+            AttributeName: "Tracker"
+            KeyType: "HASH"
+          -
+            AttributeName: "DeviceId"
+            KeyType: "RANGE"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: "NEW_AND_OLD_IMAGES"
+        TableName: ${self:provider.environment.WAYPOINT_TABLE}
 
     WaypointCognitoUserPool:
       Type: "AWS::Cognito::UserPool"
@@ -82,8 +100,18 @@ resources:
           - Fn::GetAtt: [WaypointCognitoUserPool, Arn]
 
 functions:
+
+  waypoint-injestion:
+    handler: injestion.waypointInjestion
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - InjestionQueue
+              - Arn
+
   waypoint-get-map:
-    handler: handler.getMap
+    handler: api.getMap
     events:
       - http:
           path: /map
@@ -94,7 +122,7 @@ functions:
               Ref: WaypointApiGatewayAuthorizer
 
   waypoint-get-geofence:
-    handler: handler.getGeofence
+    handler: api.getGeofence
     events:
       - http:
           path: /geofence
@@ -105,7 +133,7 @@ functions:
               Ref: WaypointApiGatewayAuthorizer
 
   waypoint-get-tracker-devices:
-    handler: handler.getTrackerDevices
+    handler: api.getTrackerDevices
     events:
       - http:
           path: /tarcker-devices
