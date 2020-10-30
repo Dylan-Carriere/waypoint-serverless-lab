@@ -4,8 +4,8 @@
 const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
 
-//const dynamoDb = new AWS.DynamoDB.DocumentClient();
-//tableName =  process.env.WAYPOINT_TABLE;
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const tableName =  process.env.WAYPOINT_TABLE;
 
 module.exports.getMap = async event => {
   return {
@@ -50,6 +50,7 @@ module.exports.getTrackerDevices = async event => {
     statusCode: 200,
     body: JSON.stringify(
       {
+        TableName: tableName,
         message: 'test function getTrackerDevices!',
         input: event,
       },

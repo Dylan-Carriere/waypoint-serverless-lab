@@ -4,7 +4,7 @@ const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
-tableName =  process.env.WAYPOINT_TABLE;
+const tableName =  process.env.WAYPOINT_TABLE;
 
 module.exports.waypointInjestion = async event => {
 
@@ -12,6 +12,7 @@ module.exports.waypointInjestion = async event => {
     statusCode: 200,
     body: JSON.stringify(
       {
+        TableName: tableName,
         message: 'test function getTrackerDevices!',
         input: event,
       },
