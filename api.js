@@ -10,6 +10,11 @@ const tableName =  process.env.WAYPOINT_TABLE;
 module.exports.getMap = async event => {
   return {
     statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(
       {
         message: 'test function getMap!',
@@ -28,6 +33,11 @@ module.exports.getMap = async event => {
 module.exports.getGeofence = async event => {
   return {
     statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(
       {
         message: 'test function getGeofence!',
@@ -43,11 +53,14 @@ module.exports.getGeofence = async event => {
 };
 
 module.exports.getTrackerDevices = async event => {
-  
-  
 
   return {
     statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(
       {
         TableName: tableName,

@@ -86,6 +86,17 @@ resources:
         UserPoolId:
           Ref: WaypointCognitoUserPool
 
+    WaypointIdentityPool:
+      Type: "AWS::Cognito::IdentityPool"
+      Properties:
+        IdentityPoolName: WaypointIdentitypoolname
+        AllowUnauthenticatedIdentities: true
+        CognitoIdentityProviders: 
+          - ClientId:
+              Ref: WaypointCognitoUserPoolClient
+            ProviderName:
+              'Fn::GetAtt': [ WaypointCognitoUserPool, ProviderName ]
+
     WaypointApiGatewayAuthorizer:
       DependsOn:
         - ApiGatewayRestApi
@@ -116,6 +127,7 @@ functions:
       - http:
           path: /map
           method: get
+          cors: true
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
@@ -127,6 +139,7 @@ functions:
       - http:
           path: /geofence
           method: get
+          cors: true
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
@@ -138,6 +151,7 @@ functions:
       - http:
           path: /tarcker-devices
           method: get
+          cors: true
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
